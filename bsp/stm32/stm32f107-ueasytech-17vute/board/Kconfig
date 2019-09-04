@@ -1,0 +1,79 @@
+menu "Hardware Drivers Config"
+
+config SOC_STM32F107VC
+    bool
+    select SOC_SERIES_STM32F1
+    default y
+
+menu "On-chip Peripheral Drivers"
+
+    config BSP_USING_GPIO
+        bool "Enable GPIO"
+        select RT_USING_PIN
+        default y
+
+    menuconfig BSP_USING_UART
+        bool "Enable UART"
+        default y
+        select RT_USING_SERIAL
+        if BSP_USING_UART
+            config BSP_USING_UART1
+                bool "Enable UART1"
+                default y
+            config BSP_UART1_RX_USING_DMA
+                bool "Enable UART1 RX DMA"
+                depends on BSP_USING_UART1
+                select RT_SERIAL_USING_DMA
+                default n
+            config BSP_USING_UART2
+                bool "Enable UART2"
+                default n
+            config BSP_UART2_RX_USING_DMA
+                bool "Enable UART2 RX DMA"
+                depends on BSP_USING_UART2
+                select RT_SERIAL_USING_DMA
+                default n
+        endif
+
+    menuconfig BSP_USING_ONCHIP_RTC
+        bool "Enable RTC"
+        select RT_USING_RTC
+        select RT_USING_LIBC
+        default n
+        if BSP_USING_ONCHIP_RTC
+            choice
+                prompt "Select clock source"
+                default BSP_RTC_USING_LSE
+
+                config BSP_RTC_USING_LSE
+                    bool "RTC USING LSE"
+
+                config BSP_RTC_USING_LSI
+                    bool "RTC USING LSI"
+            endchoice
+        endif
+
+    menuconfig BSP_USING_ETH
+        bool "Enable Ethernet"
+        select RT_USING_LWIP
+        select PHY_USING_DP83848C
+        default n
+        if BSP_USING_ETH
+            config PHY_USING_INTERRUPT_MODE
+                bool "enable phy interrupt mode"
+                default n
+            config PHY_INT_PIN
+                int
+                depends on PHY_USING_INTERRUPT_MODE
+                default 30
+            config PHY_USING_DP83848C
+                bool
+        endif
+
+endmenu
+
+menu "Board extended module Drivers"
+
+endmenu
+
+endmenu
