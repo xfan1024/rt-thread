@@ -13,7 +13,7 @@ if os.getenv('RTT_CC'):
 
 if  CROSS_TOOL == 'gcc':
 	PLATFORM 	= 'gcc'
-	EXEC_PATH 	= 'E:/Program Files/CodeSourcery/Sourcery_CodeBench_Lite_for_IA32_ELF/bin'
+	EXEC_PATH 	= '/opt/i386-unknown-elf/bin'
 elif CROSS_TOOL == 'keil':
     print('================ERROR============================')
     print('Not support keil yet!')
@@ -32,11 +32,11 @@ BUILD = 'debug'
 
 if PLATFORM == 'gcc':
     # toolchains
-    PREFIX = ''
-    CC = PREFIX + 'gcc -m32 -fno-builtin -fno-stack-protector -nostdinc'
+    PREFIX = 'i386-unknown-elf-'
+    CC = PREFIX + 'gcc -m32 -fno-builtin -fno-stack-protector'
     AS = PREFIX + 'gcc -m32'
     AR = PREFIX + 'ar'
-    LINK = PREFIX + 'ld -melf_i386'
+    LINK = PREFIX + 'gcc -Wl,-melf_i386'
     TARGET_EXT = 'elf'
     SIZE = PREFIX + 'size'
     OBJDUMP = PREFIX + 'objdump'
@@ -45,15 +45,16 @@ if PLATFORM == 'gcc':
     DEVICE = ''
     CFLAGS = DEVICE + ' -Wall'
     AFLAGS = ' -c' + DEVICE + ' -x assembler-with-cpp'
-    LFLAGS = DEVICE + ' -Map rtthread-ia32.map -T x86_ram.lds -nostdlib'
+    LFLAGS = DEVICE + ' -Wl,-Map=rtthread-ia32.map -T x86_ram.lds -nostartfiles -specs=nosys.specs'
 
     CPATH = ''
     LPATH = ''
 
     if BUILD == 'debug':
-        CFLAGS += ' -O0 -gdwarf-2'
-        AFLAGS += ' -gdwarf-2'
+        CFLAGS += ' -Og -g -gdwarf-2'
+        AFLAGS += ' -Og -g -gdwarf-2'
     else:
         CFLAGS += ' -O2'
 
+    LFLAGS += ' -s' # floppy.img 1.44MB is too small
     POST_ACTION = OBJCPY + ' -O binary $TARGET rtthread.bin\n' + SIZE + ' $TARGET \n'
